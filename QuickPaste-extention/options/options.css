@@ -45,7 +45,17 @@ h1 {
     padding: 20px;
     margin-bottom: 20px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: all 0.2s ease-out;
 }
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+body.dark-mode .card:hover {
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
 
 .card h2 {
     font-size: 1.2rem;
@@ -81,10 +91,12 @@ select {
     background-color: var(--bg-primary);
     color: var(--text-primary);
     min-width: 200px;
+    transition: all 0.2s ease-out;
 }
 select:focus {
     outline: none;
     border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(0,122,255,0.2);
 }
 
 
@@ -102,8 +114,11 @@ ul li a {
     color: var(--accent-color);
     text-decoration: none;
     font-weight: 500;
+    display: inline-block; /* Nécessaire pour le padding */
+    transition: padding-left 0.2s ease-out, color 0.2s;
 }
 
 ul li a:hover {
     text-decoration: underline;
+    padding-left: 5px;
 }

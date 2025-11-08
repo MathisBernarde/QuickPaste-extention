@@ -1,6 +1,6 @@
-// Importe le nouveau module de traduction et FuseJS
+// Importe le nouveau module de traduction
 import { loadMessages, localizeElement, getMessage } from '../js/localization.js';
-import Fuse from '../lib/fuse.min.js';
+// (La ligne import Fuse... est bien supprimée)
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- Éléments du DOM ---
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let snippets = [];
     let settings = { theme: 'light', sort: 'default', language: 'auto' };
     let fuse;
-    let originalSaveBtnText = ''; // Pour stocker le texte du bouton "Enregistrer"
+    // La variable originalSaveBtnText a été supprimée
 
     // --- Fonctions utilitaires ---
 
@@ -50,8 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.toggle('dark-mode', settings.theme === 'dark');
         // Applique la langue (le document.body entier)
         localizeElement(document.body, settings.language);
-        // Stocke le texte original du bouton
-        originalSaveBtnText = getMessage('save');
     };
 
     /** Initialise le moteur de recherche Fuse.js */
@@ -92,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
             displayList.sort((a, b) => a.title.localeCompare(b.title));
         }
 
-        // --- GESTION AMÉLIORÉE DES ÉTATS VIDES ---
+        // --- GESTION DES ÉTATS VIDES ---
         if (displayList.length === 0) {
             const query = searchBar.value.trim();
             const messageKey = query ? 'noSnippetsFound' : 'noSnippets';
@@ -132,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- Fonctions du Modal (Corrigées) ---
+    // --- Fonctions du Modal ---
 
     /** Affiche le modal (pour ajout ou édition) */
     const showModal = (snippet = null) => {
@@ -156,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
         snippetForm.reset();
         // Réinitialise le bouton de sauvegarde
         saveBtn.disabled = false;
-        saveBtn.textContent = originalSaveBtnText;
+        saveBtn.textContent = getMessage('save'); // Utilise getMessage au lieu de la variable
     };
 
     /** Gère la soumission du formulaire (Sauvegarde) - Corrigé */
@@ -206,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Réactive le bouton dans tous les cas (sauf si hideModal l'a déjà fait)
             if (modal.classList.contains('show')) { // Si le modal est toujours visible
                 saveBtn.disabled = false;
-                saveBtn.textContent = originalSaveBtnText;
+                saveBtn.textContent = getMessage('save'); // Utilise getMessage au lieu de la variable
             }
         }
     };

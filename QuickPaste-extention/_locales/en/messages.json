@@ -25,7 +25,7 @@
   "exportSuccess": { "message": "Export successful!" },
   "importSuccess": { "message": "Import successful! Snippets added." },
   "importError": { "message": "Import error: Invalid JSON file." },
-  "noSnippets": { "message": "No snippets. Click '+' to add one." },
+  "noSnippets": { "message": "No snippets. Click 'Add' to add one." },
   "noSnippetsFound": { "message": "No results found." },
   "optionsTitle": { "message": "QuickPaste Options" },
   "theme": { "message": "Theme" },
