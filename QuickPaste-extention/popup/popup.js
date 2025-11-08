@@ -1,6 +1,5 @@
 // Importe le nouveau module de traduction
 import { loadMessages, localizeElement, getMessage } from '../js/localization.js';
-// (La ligne import Fuse... est bien supprimée)
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- Éléments du DOM ---
@@ -27,7 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let snippets = [];
     let settings = { theme: 'light', sort: 'default', language: 'auto' };
     let fuse;
-    // La variable originalSaveBtnText a été supprimée
 
     // --- Fonctions utilitaires ---
 
@@ -46,9 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadSettings = async () => {
         const data = await chrome.storage.local.get('settings');
         settings = { ...settings, ...data.settings };
-        // Applique le thème
         document.body.classList.toggle('dark-mode', settings.theme === 'dark');
-        // Applique la langue (le document.body entier)
         localizeElement(document.body, settings.language);
     };
 
@@ -57,13 +53,12 @@ document.addEventListener('DOMContentLoaded', () => {
         fuse = new Fuse(snippets, {
             keys: ['title'],
             includeScore: true,
-            threshold: 0.4 // Tolérant aux fautes de frappe
+            threshold: 0.4
         });
     };
 
     // --- Fonctions de stockage ---
 
-    /** Charge les snippets depuis le stockage */
     const loadSnippets = async () => {
         const data = await chrome.storage.local.get('snippets');
         snippets = data.snippets || [];
@@ -71,31 +66,26 @@ document.addEventListener('DOMContentLoaded', () => {
         renderSnippets(snippets);
     };
 
-    /** Sauvegarde les snippets dans le stockage */
     const saveSnippets = async () => {
         await chrome.storage.local.set({ snippets });
-        initFuse(); // Met à jour l'index de recherche
+        initFuse();
     };
 
     // --- Fonctions de Rendu ---
 
-    /** Affiche la liste des snippets */
     const renderSnippets = (snippetsToRender) => {
         snippetsListEl.innerHTML = '';
-        
         let displayList = [...snippetsToRender];
 
-        // Gère le tri
         if (settings.sort === 'alpha') {
             displayList.sort((a, b) => a.title.localeCompare(b.title));
         }
 
-        // --- GESTION DES ÉTATS VIDES ---
         if (displayList.length === 0) {
             const query = searchBar.value.trim();
             const messageKey = query ? 'noSnippetsFound' : 'noSnippets';
             snippetsListEl.innerHTML = `<div class="empty-state">${getMessage(messageKey)}</div>`;
-            return; // Stop ici
+            return;
         }
 
         displayList.forEach(snippet => {
@@ -132,7 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Fonctions du Modal ---
 
-    /** Affiche le modal (pour ajout ou édition) */
     const showModal = (snippet = null) => {
         if (snippet) {
             modalTitle.textContent = getMessage('editSnippet');
@@ -144,46 +133,47 @@ document.addEventListener('DOMContentLoaded', () => {
             snippetForm.reset();
             snippetIdInput.value = '';
         }
-        modal.classList.add('show'); // Utilise la classe CSS
+        modal.classList.add('show');
         snippetTitleInput.focus();
     };
 
-    /** Cache le modal */
     const hideModal = () => {
-        modal.classList.remove('show'); // Utilise la classe CSS
+        modal.classList.remove('show');
         snippetForm.reset();
-        // Réinitialise le bouton de sauvegarde
         saveBtn.disabled = false;
-        saveBtn.textContent = getMessage('save'); // Utilise getMessage au lieu de la variable
+        saveBtn.textContent = getMessage('save');
     };
 
-    /** Gère la soumission du formulaire (Sauvegarde) - Corrigé */
+    /** Gère le clic sur l'overlay (le fond) */
+    const handleOverlayClick = (e) => {
+        // Si on clique sur l'overlay lui-même (e.target) et non sur ses enfants
+        if (e.target === modal) {
+            hideModal();
+        }
+    };
+
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         const title = snippetTitleInput.value.trim();
         const content = snippetContentInput.value.trim();
 
         if (!title || !content) {
-             // Affiche une erreur si les champs sont vides
             showToaster('snippetError', true);
             return;
         }
 
-        // Désactive le bouton pour éviter le double-clic
         saveBtn.disabled = true;
         saveBtn.textContent = getMessage('saving');
 
         try {
             const id = snippetIdInput.value;
             if (id) {
-                // Modification
                 const index = snippets.findIndex(s => s.id === id);
                 if (index > -1) {
                     snippets[index] = { ...snippets[index], title, content };
                 }
                 showToaster('snippetUpdated');
             } else {
-                // Ajout
                 const newSnippet = {
                     id: Date.now().toString(),
                     title,
@@ -192,7 +182,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 snippets.push(newSnippet);
                 showToaster('snippetAdded');
             }
-
             await saveSnippets();
             renderSnippets(snippets);
             hideModal(); // Se ferme seulement si succès
@@ -201,21 +190,18 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Erreur de sauvegarde:", error);
             showToaster('snippetError', true);
         } finally {
-            // Réactive le bouton dans tous les cas (sauf si hideModal l'a déjà fait)
-            if (modal.classList.contains('show')) { // Si le modal est toujours visible
+            // Réactive le bouton si le modal est TOUJOURS visible (en cas d'erreur)
+            if (modal.classList.contains('show')) {
                 saveBtn.disabled = false;
-                saveBtn.textContent = getMessage('save'); // Utilise getMessage au lieu de la variable
+                saveBtn.textContent = getMessage('save');
             }
         }
     };
 
     // --- Fonctions d'Action (CRUD et autres) ---
 
-    /** Gère le clic sur la liste */
     const handleListClick = (e) => {
         const target = e.target;
-        
-        // Clic sur le bouton Éditer
         const editBtn = target.closest('.edit-btn');
         if (editBtn) {
             e.stopPropagation();
@@ -225,7 +211,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Clic sur le bouton Supprimer
         const deleteBtn = target.closest('.delete-btn');
         if (deleteBtn) {
             e.stopPropagation();
@@ -240,14 +225,12 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // Clic simple pour Coller (sur l'item lui-même)
         const snippetItem = target.closest('.snippet-item');
         if (snippetItem) {
             handlePaste(snippetItem.dataset.id);
         }
     };
 
-    /** Gère le double-clic (Copier) */
     const handleListDblClick = (e) => {
         const snippetItem = e.target.closest('.snippet-item');
         if (snippetItem) {
@@ -255,16 +238,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    /** Colle le texte dans l'onglet actif */
     const handlePaste = async (id) => {
         const snippet = snippets.find(s => s.id === id);
         if (!snippet) return;
-
         try {
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-            
             if (!tab.id) throw new Error("No active tab");
-
             const results = await chrome.scripting.executeScript({
                 target: { tabId: tab.id },
                 func: (textToPaste) => {
@@ -274,78 +253,63 @@ document.addEventListener('DOMContentLoaded', () => {
                         activeEl.tagName === 'TEXTAREA' ||
                         (activeEl.tagName === 'INPUT' && /text|search|email|url|password|tel/.test(activeEl.type || ''))
                     );
-
                     if (!isEditable) return { success: false };
-
                     try {
                         if (activeEl.isContentEditable) {
                             document.execCommand('insertText', false, textToPaste);
                         } else {
-                            const start = activeEl.selectionStart;
-                            const end = activeEl.selectionEnd;
+                            const start = activeEl.selectionStart, end = activeEl.selectionEnd;
                             const value = activeEl.value;
-                            
                             activeEl.value = value.substring(0, start) + textToPaste + value.substring(end);
                             activeEl.selectionStart = activeEl.selectionEnd = start + textToPaste.length;
                             activeEl.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
                         }
                         return { success: true };
-                    } catch (e) {
-                        return { success: false, error: e.message };
-                    }
+                    } catch (e) { return { success: false, error: e.message }; }
                 },
                 args: [snippet.content]
             });
 
             const [mainResult] = results;
             if (mainResult && mainResult.result && mainResult.result.success) {
-                window.close(); // Ferme le popup si succès
+                window.close();
             } else {
                 showToaster('pasteErrorNoField', true);
             }
-
         } catch (error) {
             console.error(error);
-            const msg = getMessage('pasteErrorGeneric') + (error.message || '');
-            showToaster(msg, true);
+            showToaster(getMessage('pasteErrorGeneric') + (error.message || ''), true);
         }
     };
 
-    /** Copie le texte dans le presse-papiers */
     const handleCopy = (id) => {
         const snippet = snippets.find(s => s.id === id);
         if (snippet) {
             navigator.clipboard.writeText(snippet.content).then(() => {
                 showToaster('copiedToClipboard');
-                setTimeout(window.close, 1000); // Ferme après 1s
+                setTimeout(window.close, 1000);
             });
         }
     };
 
-    /** Gère la recherche (filtrage) */
     const handleSearch = (e) => {
         const query = e.target.value.trim();
         if (!query) {
-            renderSnippets(snippets); // Affiche tout si la recherche est vide
+            renderSnippets(snippets);
             return;
         }
         const results = fuse.search(query);
         const filteredSnippets = results.map(result => result.item);
-        renderSnippets(filteredSnippets); // Affiche les résultats (gère l'état vide)
+        renderSnippets(filteredSnippets);
     };
 
-    /** Gère le tri */
     const handleSort = () => {
         settings.sort = settings.sort === 'alpha' ? 'default' : 'alpha';
         sortBtn.classList.toggle('active', settings.sort === 'alpha');
-        // Sauvegarde du réglage de tri
         chrome.storage.local.set({ settings }); 
-        
-        // Re-render avec la liste filtrée actuelle ou la liste complète
-        handleSearch({ target: searchBar }); // Simule une recherche pour rafraîchir
+        handleSearch({ target: searchBar });
     };
 
-    // --- Fonctions d'Import / Export ---
     const handleExport = () => {
         const data = JSON.stringify(snippets, null, 2);
         const blob = new Blob([data], { type: 'application/json' });
@@ -367,7 +331,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const handleImportFile = (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
         const reader = new FileReader();
         reader.onload = async (event) => {
             try {
@@ -377,9 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 const existingIds = new Set(snippets.map(s => s.id));
                 const newSnippets = importedData.filter(s => !existingIds.has(s.id));
-                
                 snippets = [...snippets, ...newSnippets];
-                
                 await saveSnippets();
                 renderSnippets(snippets);
                 showToaster('importSuccess');
@@ -395,16 +356,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Initialisation et Écouteurs ---
 
     const init = async () => {
-        // 1. Charger les fichiers de traduction en premier
         await loadMessages();
-        // 2. Charger les settings (qui applique la langue)
         await loadSettings();
-        // 3. Charger les snippets et afficher l'UI
         await loadSnippets();
 
         // Événements du Modal
         addBtn.addEventListener('click', () => showModal());
         cancelBtn.addEventListener('click', hideModal);
+        modal.addEventListener('click', handleOverlayClick);
         snippetForm.addEventListener('submit', handleFormSubmit);
 
         // Événements de la liste

@@ -236,7 +236,6 @@ button:disabled {
 .modal-content {
     background-color: var(--bg-secondary);
     padding: 20px;
-    border-radius: 8px;
     width: 300px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     
@@ -315,7 +314,7 @@ button:disabled {
     background-color: var(--danger-color);
 }
 
-/* --- État vide (Amélioré) --- */
+/* --- État vide --- */
 .empty-state {
     padding: 30px 20px;
     text-align: center;
