@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="optionsTitle">Options QuickPaste</title>
+    <link rel="stylesheet" href="options.css">
+</head>
+<body>
+    <div class="container">
+        <h1 data-i18n="optionsTitle"></h1>
+
+        <section class="card">
+            <h2 data-i18n="theme">Thème</h2>
+            <div class="option-group">
+                <input type="radio" id="theme-light" name="theme" value="light">
+                <label for="theme-light" data-i18n="light">Clair</label>
+            </div>
+            <div class="option-group">
+                <input type="radio" id="theme-dark" name="theme" value="dark">
+                <label for="theme-dark" data-i18n="dark">Sombre</label>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2 data-i18n="language">Langue</h2>
+            <select id="language-select">
+                <option value="auto" data-i18n="languageAuto">Auto (détecté)</option>
+                <option value="fr">Français</option>
+                <option value="en">English</option>
+            </select>
+        </section>
+
+        <section class="card">
+            <h2 data-i18n="contact">Contact & Support</h2>
+            <ul>
+                <li><a href="https://votre-site-web.com/contact" target="_blank" data-i18n="contactMe">Me contacter</a></li>
+                <li><a href="https://www.buymeacoffee.com/votre-nom" target="_blank" data-i18n="buyCoffee">M'offrir un café</a></li>
+            </ul>
+        </section>
+    </div>
+    <script src="options.js" type="module"></script>
+</body>
+</html>

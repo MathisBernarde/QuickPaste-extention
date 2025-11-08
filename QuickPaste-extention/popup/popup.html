@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickPaste</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <header>
+        <h1 data-i18n="appName">QuickPaste</h1>
+        <a href="../options/options.html" target="_blank" class="options-link" data-i18n-title="optionsTitle">⚙️</a>
+    </header>
+
+    <div class="controls">
+        <input type="search" id="search-bar" data-i18n-placeholder="searchPlaceholder" autocomplete="off">
+        <button id="add-btn" data-i18n="addSnippet" data-i18n-title="addSnippet">+</button>
+    </div>
+
+    <div class="snippets-container">
+        <div id="snippets-list">
+            </div>
+    </div>
+
+    <div class="controls-bottom">
+        <button id="import-btn" data-i18n="importSnippets" data-i18n-title="importSnippets">Importer</button>
+        <button id="export-btn" data-i18n="exportSnippets" data-i18n-title="exportSnippets">Exporter</button>
+        <button id="sort-btn" data-i18n="sortAlpha" data-i18n-title="sortAlpha">Trier A-Z</button>
+    </div>
+
+    <div id="modal" class="modal-overlay"> <div class="modal-content">
+            <h2 id="modal-title" data-i18n="editSnippet"></h2>
+            <form id="snippet-form">
+                <input type="hidden" id="snippet-id">
+                <div class="form-group">
+                    <label for="snippet-title" data-i18n="title">Titre</label>
+                    <input type="text" id="snippet-title" required>
+                </div>
+                <div class="form-group">
+                    <label for="snippet-content" data-i18n="content">Contenu</label>
+                    <textarea id="snippet-content" rows="5" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="cancel-btn" data-i18n="cancel">Annuler</button>
+                    <button type="submit" id="save-btn" data-i18n="save">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toaster" class="toaster"></div>
+
+    <input type="file" id="import-file-input" accept=".json" style="display: none;">
+
+    <script src="../lib/fuse.min.js"></script> <script src="popup.js" type="module"></script>
+</body>
+</html>
