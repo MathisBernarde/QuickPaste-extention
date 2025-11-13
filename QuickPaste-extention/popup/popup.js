@@ -40,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     };
 
-    /** Récupère la configuration (thème, langue) */
     const loadSettings = async () => {
         const data = await chrome.storage.local.get('settings');
         settings = { ...settings, ...data.settings };
