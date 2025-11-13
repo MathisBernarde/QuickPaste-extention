@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_appName__",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "__MSG_appDesc__",
   "default_locale": "fr",
   "permissions": [
@@ -22,5 +22,27 @@
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
-  }
+  },
+  
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["editor/editor.css"]
+    }
+  ],
+  
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "editor/editor.html",
+        "editor/editor.css",
+        "editor/editor.js",
+        "js/localization.js",
+        "_locales/fr/messages.json",
+        "_locales/en/messages.json"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

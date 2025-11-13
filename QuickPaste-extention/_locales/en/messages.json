@@ -25,7 +25,7 @@
   "exportSuccess": { "message": "Export successful!" },
   "importSuccess": { "message": "Import successful! Snippets added." },
   "importError": { "message": "Import error: Invalid JSON file." },
-  "noSnippets": { "message": "No snippets. Click 'Add' to add one." },
+  "noSnippets": { "message": "No snippets. Click '+' to add one." },
   "noSnippetsFound": { "message": "No results found." },
   "optionsTitle": { "message": "QuickPaste Options" },
   "theme": { "message": "Theme" },
@@ -35,5 +35,8 @@
   "languageAuto": { "message": "Auto (detected)" },
   "contact": { "message": "Contact & Support" },
   "contactMe": { "message": "Contact me" },
-  "buyCoffee": { "message": "Buy me a coffee" }
+  "buyCoffee": { "message": "Buy me a coffee" },
+  "charCount": { "message": "characters" },
+  "copy": { "message": "Copy" },
+  "highlight": { "message": "Highlight" }
 }

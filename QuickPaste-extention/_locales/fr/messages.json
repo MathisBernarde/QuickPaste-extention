@@ -25,7 +25,7 @@
   "exportSuccess": { "message": "Exportation réussie !" },
   "importSuccess": { "message": "Importation réussie ! Textes ajoutés." },
   "importError": { "message": "Erreur d'importation : Fichier JSON invalide." },
-  "noSnippets": { "message": "Aucun texte. Cliquez sur 'Ajouter' pour en ajouter." },
+  "noSnippets": { "message": "Aucun texte. Cliquez sur '+' pour en ajouter." },
   "noSnippetsFound": { "message": "Aucun résultat trouvé." },
   "optionsTitle": { "message": "Options de QuickPaste" },
   "theme": { "message": "Thème" },
@@ -35,5 +35,8 @@
   "languageAuto": { "message": "Auto (détecté)" },
   "contact": { "message": "Contact & Support" },
   "contactMe": { "message": "Me contacter" },
-  "buyCoffee": { "message": "M'offrir un café" }
+  "buyCoffee": { "message": "M'offrir un café" },
+  "charCount": { "message": "caractères" },
+  "copy": { "message": "Copier" },
+  "highlight": { "message": "Surligner" }
 }
