@@ -39,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localizeElement(document.body, settings.language);
     };
 
+    /** Initialise le moteur de recherche Fuse.js */
     const initFuse = () => {
         fuse = new Fuse(snippets, {
             keys: ['title'],
@@ -49,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Fonctions de stockage ---
 
+    /** Charge les snippets depuis le stockage */
     const loadSnippets = async () => {
         const data = await chrome.storage.local.get('snippets');
         snippets = data.snippets || [];
@@ -56,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderSnippets(snippets);
     };
 
+    /** Sauvegarde les snippets dans le stockage */
     const saveSnippets = async () => {
         await chrome.storage.local.set({ snippets });
         initFuse();
@@ -63,6 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Fonctions de Rendu ---
 
+    /** Affiche la liste des snippets */
     const renderSnippets = (snippetsToRender) => {
         snippetsListEl.innerHTML = '';
         let displayList = [...snippetsToRender];
@@ -115,23 +119,61 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- Fonctions pour ouvrir l'éditeur externe ---
+    // --- CŒUR DU SYSTÈME : Ouverture Intelligente de l'Éditeur ---
+
+    /** Gère l'ouverture de l'éditeur (overlay ou nouvel onglet) */
     const openEditor = (snippetId = null) => {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            if (tabs[0] && tabs[0].id) {
-                // Envoie un message au content.js de l'onglet actif
-                chrome.tabs.sendMessage(tabs[0].id, {
-                    type: "SHOW_EDITOR",
-                    snippetId: snippetId // Envoie l'ID (ou null si ajout)
-                }, (response) => {
-                    if (chrome.runtime.lastError) {
-                        // L'erreur se produit sur les pages chrome:// ou spéciales
-                        console.warn("Ne peut pas injecter sur cette page.", chrome.runtime.lastError.message);
-                        alert("QuickPaste ne peut pas s'ouvrir sur cette page (ex: chrome://). Essayez sur un site web.");
-                    } else {
-                        window.close(); // Ferme le popup si le message est bien parti
-                    }
+        chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
+            const currentTab = tabs[0];
+            
+            /** PLAN B : Ouvrir l'éditeur dans un nouvel onglet */
+            const openInNewTab = () => {
+                let url = 'editor/editor.html';
+                if (snippetId) url += `?id=${snippetId}`;
+                chrome.tabs.create({ url: url });
+                window.close();
+            };
+
+            // Si l'onglet est invalide ou une page système (chrome://) -> Plan B direct
+            if (!currentTab || !currentTab.id || !currentTab.url ||
+                currentTab.url.startsWith('chrome:') || 
+                currentTab.url.startsWith('edge:') || 
+                currentTab.url.includes('chrome.google.com/webstore')) 
+            {
+                openInNewTab();
+                return;
+            }
+
+            /** Tente d'envoyer un message au content script déjà chargé */
+            const sendMessage = () => new Promise((resolve, reject) => {
+                chrome.tabs.sendMessage(currentTab.id, { type: "SHOW_EDITOR", snippetId }, (res) => {
+                    if (chrome.runtime.lastError) reject(chrome.runtime.lastError);
+                    else resolve(res);
                 });
+            });
+
+            try {
+                // PLAN A
+                await sendMessage();
+                window.close();
+            } catch (error) {
+                console.log("Injection manuelle du script...");
+                try {
+                    await chrome.scripting.insertCSS({ target: { tabId: currentTab.id }, files: ["overlay.css"] });
+                    await chrome.scripting.executeScript({ target: { tabId: currentTab.id }, files: ["content.js"] });
+                    setTimeout(async () => {
+                        try {
+                            await sendMessage();
+                            window.close();
+                        } catch (retryError) {
+                            console.error("Échec de la nouvelle tentative:", retryError.message);
+                            openInNewTab();
+                        }
+                    }, 100); 
+                } catch (injectionError) {
+                    console.error("Injection impossible:", injectionError.message);
+                    openInNewTab();
+                }
             }
         });
     };
@@ -141,15 +183,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const handleListClick = (e) => {
         const target = e.target;
         
-        // Clic sur Éditer
         const editBtn = target.closest('.edit-btn');
         if (editBtn) {
             e.stopPropagation();
-            openEditor(editBtn.dataset.id); // OUVRE L'EDITEUR EXTERNE
+            openEditor(editBtn.dataset.id);
             return;
         }
 
-        // Clic sur Supprimer
         const deleteBtn = target.closest('.delete-btn');
         if (deleteBtn) {
             e.stopPropagation();
@@ -164,7 +204,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // Clic pour Coller
         const snippetItem = target.closest('.snippet-item');
         if (snippetItem) {
             handlePaste(snippetItem.dataset.id);
@@ -228,6 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    /** Gère la copie (texte brut) */
     const handleCopy = (id) => {
         const snippet = snippets.find(s => s.id === id);
         if (snippet) {
@@ -237,11 +277,14 @@ document.addEventListener('DOMContentLoaded', () => {
             
             navigator.clipboard.writeText(plainText).then(() => {
                 showToaster('copiedToClipboard');
-                setTimeout(window.close, 1000);
+                setTimeout(window.close, 1000); // Ferme après 1s
             });
         }
     };
 
+    // --- Fonctions des Contrôles (Recherche, Tri, Import/Export) ---
+
+    /** Gère la recherche (filtrage) */
     const handleSearch = (e) => {
         const query = e.target.value.trim();
         if (!query) {
@@ -309,8 +352,6 @@ document.addEventListener('DOMContentLoaded', () => {
         await loadMessages();
         await loadSettings();
         await loadSnippets();
-
-        // Clic sur "Ajouter"
         addBtn.addEventListener('click', () => openEditor());
 
         // Événements de la liste
@@ -325,5 +366,6 @@ document.addEventListener('DOMContentLoaded', () => {
         importFileInput.addEventListener('change', handleImportFile);
     };
 
+    // Lance l'application
     init();
 });

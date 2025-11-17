@@ -1,0 +1,25 @@
+#quickpaste-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 2147483646;
+}
+
+#quickpaste-editor-iframe {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 550px;
+    max-width: 90vw;
+    max-height: 90vh;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    z-index: 2147483647;
+    overflow: hidden;
+}
